@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results Management - Cavendish School Portal</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+
+        /* Original CSS Variables */
+        :root {
+            --primary-blue: #2c3e50;
+            --secondary-blue: #3498db;
+            --accent-blue: #2980b9;
+            --light-blue: #ecf0f1;
+            --success-green: #27ae60;
+            --warning-orange: #f39c12;
+            --danger-red: #e74c3c;
+            --gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --radius: 12px;
+        }
+
+        .results-header {
+            background: var(--gradient);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            border-radius: var(--radius);
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 4px solid var(--secondary-blue);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.uploaded {
+            border-top-color: var(--success-green);
+        }
+
+        .stat-card.pending {
+            border-top-color: var(--warning-orange);
+        }
+
+        .stat-card.overdue {
+            border-top-color: var(--danger-red);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .action-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .action-btn.primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .action-btn.success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .action-btn.warning {
+            background: var(--warning-orange);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .results-section {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: var(--light-blue);
+            padding: 20px 25px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h3 {
+            margin: 0;
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .section-content {
+            padding: 25px;
+        }
+
+        .table-responsive {
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table th {
+            background: var(--primary-blue);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .results-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .results-table tr:hover {
+            background: var(--light-blue);
+            cursor: pointer;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-published {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-draft {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-right: 5px; /* Add margin for spacing */
+        }
+
+        .btn-edit {
+            background: var(--secondary-blue);
+            color: white;
+        }
+
+        .btn-delete {
+            background: var(--danger-red);
+            color: white;
+        }
+
+        .btn-publish {
+            background: var(--success-green);
+            color: white;
+        }
+
+        /* Custom alert styling for demo */
+        .custom-alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .custom-alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .custom-alert-close {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+        
+        /* Animation for cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card, .results-section, .filters {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .filters { animation-delay: 0.5s; }
+        .results-section { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+
+<div class="results-header">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+            <div class="md:w-2/3">
+                <!-- THIS IS THE HEADING YOU WANT TO SEE -->
+                <h1 class="text-3xl sm:text-4xl font-extrabold flex items-center mb-1">
+                    <i class="fas fa-chart-bar mr-3"></i>Results Management
+                </h1>
+                <p class="text-lg font-light opacity-90">Comprehensive academic results tracking and administration system</p>
+            </div>
+            <div class="mt-4 md:mt-0 md:w-1/3 flex justify-end">
+                <div class="flex space-x-3">
+                    <button class="action-btn text-white border border-white hover:bg-white hover:text-primary-blue transition-colors bg-opacity-0" style="background: rgba(255, 255, 255, 0.1);">
+                        <i class="fas fa-download"></i>Export
+                    </button>
+                    <button class="action-btn text-white border border-white hover:bg-white hover:text-primary-blue transition-colors bg-opacity-0" style="background: rgba(255, 255, 255, 0.1);">
+                        <i class="fas fa-print"></i>Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <div class="stat-card uploaded">
+            <div class="stat-number">1,247</div>
+            <div class="stat-label">Results Uploaded</div>
+            <div class="progress-container mt-4">
+                <div class="progress-label flex justify-between">
+                    <span>Completion</span>
+                    <span>85%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 85%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">42</div>
+            <div class="stat-label">Pending Approval</div>
+            <small class="text-gray-500">Requires review</small>
+        </div>
+        
+        <div class="stat-card pending">
+            <div class="stat-number">18</div>
+            <div class="stat-label">Overdue Submissions</div>
+            <small class="text-gray-500">Past deadline</small>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">96.2%</div>
+            <div class="stat-label">Overall Accuracy</div>
+            <small class="text-gray-500">Verified results</small>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <a href="#" class="action-btn primary">
+            <i class="fas fa-upload"></i>
+            Upload New Results
+        </a>
+        <a href="#" class="action-btn success">
+            <i class="fas fa-plus-circle"></i>
+            Create Assessment
+        </a>
+        <a href="#" class="action-btn warning">
+            <i class="fas fa-sync-alt"></i>
+            Bulk Update
+        </a>
+        <a href="#" class="action-btn" style="background: #6c757d; color: white;">
+            <i class="fas fa-cog"></i>
+            System Settings
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+            <div class="form-group">
+                <label>Academic Year</label>
+                <select class="form-control">
+                    <option>2023/2024</option>
+                    <option>2022/2023</option>
+                    <option>2021/2022</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Semester</label>
+                <select class="form-control">
+                    <option>All Semesters</option>
+                    <option>Semester 1</option>
+                    <option>Semester 2</option>
+                    <option>Summer Semester</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Course/Unit</label>
+                <select class="form-control">
+                    <option>All Courses</option>
+                    <option>Computer Science</option>
+                    <option>Business Administration</option>
+                    <option>Engineering</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select class="form-control">
+                    <option>All Status</option>
+                    <option>Published</option>
+                    <option>Pending</option>
+                    <option>Draft</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="action-btn primary w-full" style="margin: 0;">
+                    <i class="fas fa-filter"></i>
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-6">
+        <div class="lg:w-2/3">
+            <!-- Results Table -->
+            <div class="results-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-table mr-2"></i>Recent Results</h3>
+                    <div>
+                        <span class="mr-3 text-gray-500 text-sm">Last updated: Today, 10:24 AM</span>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="table-responsive overflow-x-auto">
+                        <table class="results-table min-w-full">
+                            <thead>
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Name</th>
+                                    <th>Assessment</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-id="1">
+                                    <td>CS-401</td>
+                                    <td>Advanced Programming</td>
+                                    <td>CAT 1</td>
+                                    <td>Mar 15, 2024</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                    <td>
+                                        <a href="#" class="btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                        <a href="#" class="btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                                <tr data-id="2">
+                                    <td>MTH-305</td>
+                                    <td>Calculus III</td>
+                                    <td>Final Exam</td>
+                                    <td>Mar 12, 2024</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>
+                                        <a href="#" class="btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                        <a href="#" class="btn-sm btn-publish"><i class="fas fa-check"></i></a>
+                                    </td>
+                                </tr>
+                                <tr data-id="3">
+                                    <td>BUS-202</td>
+                                    <td>Business Statistics</td>
+                                    <td>CAT 2</td>
+                                    <td>Mar 10, 2024</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                    <td>
+                                        <a href="#" class="btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                        <a href="#" class="btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                                <tr data-id="4">
+                                    <td>ENG-150</td>
+                                    <td>Technical Writing</td>
+                                    <td>Assignment 3</td>
+                                    <td>Mar 8, 2024</td>
+                                    <td><span class="status-badge status-draft">Draft</span></td>
+                                    <td>
+                                        <a href="#" class="btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                        <a href="#" class="btn-sm btn-publish"><i class="fas fa-check"></i></a>
+                                    </td>
+                                </tr>
+                                <tr data-id="5">
+                                    <td>PHY-101</td>
+                                    <td>General Physics</td>
+                                    <td>Lab Report</td>
+                                    <td>Mar 5, 2024</td>
+                                    <td><span class="status-badge status-published">Published</span></td>
+                                    <td>
+                                        <a href="#" class="btn-sm btn-edit"><i class="fas fa-edit"></i></a>
+                                        <a href="#" class="btn-sm btn-delete"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:w-1/3">
+            <!-- Recent Activity -->
+            <div class="results-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-history mr-2"></i>Recent Activity</h3>
+                </div>
+                <div class="section-content">
+                    <ul class="recent-activity">
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-upload"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Results Uploaded</div>
+                                <div class="activity-meta">CS-401 CAT 1 • 2 hours ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Results Approved</div>
+                                <div class="activity-meta">MTH-305 Final Exam • 5 hours ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Results Updated</div>
+                                <div class="activity-meta">BUS-202 CAT 2 • Yesterday</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Review Required</div>
+                                <div class="activity-meta">ENG-150 Assignment 3 • 2 days ago</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-flask"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">New Assessment Created</div>
+                                <div class="activity-meta">PHY-101 Lab Report • 3 days ago</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="results-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-bolt mr-2"></i>Quick Actions</h3>
+                </div>
+                <div class="section-content">
+                    <div class="flex flex-col gap-3">
+                        <a href="#" class="action-btn primary">
+                            <i class="fas fa-chart-line"></i>
+                            Generate Reports
+                        </a>
+                        <a href="#" class="action-btn success">
+                            <i class="fas fa-envelope"></i>
+                            Notify Students
+                        </a>
+                        <a href="#" class="action-btn warning">
+                            <i class="fas fa-download"></i>
+                            Download Templates
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const actionButtons = document.querySelectorAll('.action-btn');
+        const mainContainer = document.querySelector('.max-w-7xl');
+
+        // Function to create and show a custom alert message
+        function showMessage(text, type = 'success') {
+            const alert = document.createElement('div');
+            alert.className = `custom-alert custom-alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${text}</span>
+                <span class="custom-alert-close">&times;</span>
+            `;
+            
+            // Append to the main container
+            mainContainer.insertBefore(alert, mainContainer.firstChild);
+
+            // Add close functionality
+            alert.querySelector('.custom-alert-close').addEventListener('click', () => {
+                alert.remove();
+            });
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+        
+        // Add interactive functionality
+        actionButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!this.getAttribute('href') || this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                    
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    this.style.opacity = '0.7';
+                    
+                    // Simulate processing
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.style.opacity = '1';
+                        
+                        // Show success message
+                        showMessage('Action completed successfully!');
+                    }, 1500);
+                }
+            });
+        });
+        
+        // Table row selection
+        const tableRows = document.querySelectorAll('.results-table tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('click', function(e) {
+                // Ignore clicks on action buttons inside the row
+                if (e.target.closest('.btn-sm')) {
+                    return;
+                }
+                this.classList.toggle('bg-blue-100'); // Use a Tailwind class for active selection
+            });
+        });
+
+        // Add dummy event listeners for small action buttons
+        document.querySelectorAll('.btn-sm').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent row selection when clicking action buttons
+                const action = btn.classList.contains('btn-edit') ? 'Edit' : 
+                               btn.classList.contains('btn-delete') ? 'Delete' : 'Publish';
+                const rowId = btn.closest('tr').getAttribute('data-id');
+                showMessage(`${action} action triggered for Result ID: ${rowId}`, action === 'Delete' ? 'danger' : 'success');
+            });
+        });
+    });
+</script>
+</body>
+</html>

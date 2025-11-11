@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Results Management - Grade Entry{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800"><i class="fas fa-clipboard-check"></i> Results Management</h1>
+    <p class="text-secondary">Enter and manage grades for your assigned courses and assessments.</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">1. Select Course and Assessment</h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('lecturer.results_entry') }}">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="course_select">Select Course</label>
+                        <select id="course_select" name="course_id" class="form-control" required>
+                            <option value="" disabled selected>Choose a course...</option>
+                            {% for course in courses %}
+                                <option value="{{ course.id }}" {% if course.id == selected_course_id %}selected{% endif %}>
+                                    {{ course.course_code }} - {{ course.course_title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label for="assessment_select">Select Assessment</label>
+                        <select id="assessment_select" name="assessment_type" class="form-control" required>
+                            <option value="" disabled selected>Choose assessment type...</option>
+                            {% for assessment in assessments %}
+                                <option value="{{ assessment.key }}" {% if assessment.key == selected_assessment_type %}selected{% endif %}>
+                                    {{ assessment.name }} ({{ assessment.weight }}%)
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary btn-block">Load Students</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% if students_list %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-success">
+                2. Enter Grades for {{ selected_course_name }} ({{ selected_assessment_name }})
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('lecturer.submit_grades', course_id=selected_course_id, assessment_type=selected_assessment_type) }}">
+                
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped" id="gradesTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th class="text-center">Previous Grade</th>
+                                <th class="text-center">Grade (0-100)</th>
+                                <th class="text-center">Comments (Optional)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students_list %}
+                            <tr>
+                                <td>{{ student.student_id }}</td>
+                                <td>{{ student.first_name }} {{ student.last_name }}</td>
+                                <td class="text-center text-info font-weight-bold">{{ student.previous_grade or 'N/A' }}</td>
+                                <td>
+                                    <input type="number" 
+                                           name="grades_{{ student.id }}" 
+                                           class="form-control form-control-sm text-center" 
+                                           min="0" max="100" 
+                                           value="{{ student.current_grade or '' }}" 
+                                           placeholder="Score" 
+                                           required>
+                                </td>
+                                <td>
+                                    <input type="text" 
+                                           name="comments_{{ student.id }}" 
+                                           class="form-control form-control-sm" 
+                                           value="{{ student.current_comment or '' }}" 
+                                           placeholder="Feedback/Notes">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 text-right">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save"></i> Save & Submit Grades
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4" role="alert">
+        Please select a course and assessment type above to load the list of students for grading.
+    </div>
+    {% endif %}
+    </div>
+{% endblock %}
