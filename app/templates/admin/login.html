@@ -1,257 +1,391 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
-from flask_login import login_required, current_user
-# CORRECTED IMPORT: Use the unified app.models file
-from app.models import db, User, UserRole, Student, Course, CourseEnrollment, Lecturer
+{% extends "base.html" %}
 
-results_bp = Blueprint('results', __name__)
+{% block title %}Admin Login - Cavendish University{% endblock %}
 
-# ------------------------------------------------------------
-# LECTURER & ADMIN GRADE MANAGEMENT (Using CourseEnrollment)
-# ------------------------------------------------------------
+{% block content %}
+<div class="container-fluid admin-login-container">
+    <!-- Admin Utility Bar -->
+    <div class="admin-utility-bar">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center py-2">
+                <div class="text-white small">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Secure Admin Portal
+                </div>
+                <div class="admin-actions">
+                    <a href="{{ url_for('admin.create_admin') }}" class="btn btn-outline-light btn-sm me-2">
+                        <i class="fas fa-user-plus me-1"></i>Create Admin
+                    </a>
+                    <a href="{{ url_for('admin.manage_admins') }}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-users-cog me-1"></i>Manage Admins
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-@results_bp.route('/publish', methods=['POST'])
-@login_required
-def publish_grade():
-    """
-    Lecturer/Admin submits or updates a grade for a student's course enrollment.
-    Requires: student_number, course_code, grade, academic_year, semester.
-    """
-    if not current_user.is_lecturer() and not current_user.is_admin():
-        return jsonify({'success': False, 'message': 'Access denied.'}), 403
-    
-    if not current_user.lecturer_profile and current_user.is_lecturer():
-        return jsonify({'success': False, 'message': 'Lecturer profile not linked.'}), 400
-
-    try:
-        data = request.get_json()
-        # Data needed for lookup
-        student_number = data.get('student_number')
-        course_code = data.get('course_code')
-        grade = data.get('grade')
-        academic_year = data.get('academic_year')
-        semester = data.get('semester')
-
-        # 1. Look up student and course objects
-        student = Student.query.filter_by(student_number=student_number).first()
-        course = Course.query.filter_by(code=course_code).first()
+    <div class="row align-items-center min-vh-100">
+        <!-- Left side - Admin Graphics Section -->
+        <div class="col-lg-6 d-none d-lg-block admin-image-section" 
+             style="background: linear-gradient(rgba(13, 36, 83, 0.85), rgba(25, 55, 109, 0.9)), url('{{ url_for('static', filename='images/cavendish1.png') }}'); 
+                    background-size: cover; 
+                    background-position: center;">
+            <div class="admin-graphics-placeholder">
+                <div class="admin-badge">
+                    <div class="badge-icon admin-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" fill="currentColor" class="bi bi-shield-lock" viewBox="0 0 16 16">
+                            <path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.159 0 0 1-1.048-.625 11.777 11.775 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z"/>
+                            <path d="M9.5 6.5a1.5 1.5 0 0 1-1 1.415l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99a1.5 1.5 0 1 1 2-1.415z"/>
+                        </svg>
+                    </div>
+                    <h3>Administrator Access</h3>
+                    <p class="m-0">Cavendish University Management System</p>
+                </div>
+                <div class="graphics-text">
+                    <h2>Secure Admin Portal</h2>
+                    <p>Manage student registrations, payment verifications, and system administration with elevated security protocols.</p>
+                    <div class="security-features">
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Multi-factor authentication ready
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Encrypted data transmission
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Activity monitoring & logging
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Admin account management
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         
-        if not student or not course:
-            return jsonify({'success': False, 'message': 'Invalid Student or Course details provided.'}), 404
+        <!-- Right side - Login Form -->
+        <div class="col-lg-6 col-md-12">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-10">
+                    <div class="card admin-login-card shadow-lg border-0">
+                        <div class="card-header bg-dark text-white text-center py-4 border-0">
+                            <div class="admin-header-icon mb-3">
+                                <i class="fas fa-user-shield fa-2x"></i>
+                            </div>
+                            <h2 class="mb-0">Administrator Login</h2>
+                            <p class="mb-0 mt-2 opacity-75">Restricted Access - Authorized Personnel Only</p>
+                        </div>
+                        
+                        <div class="card-body p-5">
+                            <div class="access-warning alert alert-warning d-flex align-items-center mb-4">
+                                <i class="fas fa-exclamation-triangle me-2 flex-shrink-0"></i>
+                                <div>
+                                    <strong>Security Notice:</strong> This area contains sensitive information. Unauthorized access is prohibited.
+                                </div>
+                            </div>
 
-        # 2. Security check: Lecturer must teach the course
-        if current_user.is_lecturer() and course.primary_lecturer_id != current_user.lecturer_profile.id:
-            return jsonify({'success': False, 'message': 'Authorization required for this course.'}), 403
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                                                {{ message }}
+                                            </div>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
 
-        # 3. Find the specific enrollment record
-        enrollment = CourseEnrollment.query.filter_by(
-            student_id=student.id,
-            course_id=course.id,
-            academic_year=academic_year,
-            semester=semester
-        ).first()
+                            <form method="POST" action="{{ url_for('admin.admin_login') }}" class="needs-validation" novalidate>
+                                <div class="mb-4">
+                                    <label for="username" class="form-label fw-semibold">Administrator Username</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-user-cog"></i>
+                                        </span>
+                                        <input 
+                                            type="text" 
+                                            id="username" 
+                                            name="username" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="Enter administrator username" 
+                                            required
+                                        >
+                                    </div>
+                                </div>
 
-        if not enrollment:
-            return jsonify({'success': False, 'message': 'Enrollment record not found for this period.'}), 404
+                                <div class="mb-4">
+                                    <label for="password" class="form-label fw-semibold">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-key"></i>
+                                        </span>
+                                        <input 
+                                            type="password" 
+                                            id="password" 
+                                            name="password" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="Enter secure password" 
+                                            required
+                                        >
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid mb-4">
+                                    <button type="submit" class="btn btn-dark btn-lg py-3 fw-semibold">
+                                        <i class="fas fa-shield-check me-2"></i>
+                                        Authenticate & Login
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Admin Management Links -->
+                            <div class="admin-management-links mt-4">
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <a href="{{ url_for('admin.create_admin') }}" class="btn btn-outline-primary w-100">
+                                            <i class="fas fa-user-plus me-2"></i>
+                                            Create Admin Account
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <a href="{{ url_for('admin.manage_admins') }}" class="btn btn-outline-secondary w-100">
+                                            <i class="fas fa-users-cog me-2"></i>
+                                            Manage Admins
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <p class="text-muted small mb-0">
+                                    <i class="fas fa-clock-history me-1"></i>
+                                    Session timeout: 30 minutes of inactivity
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            For security emergencies, contact 
+                            <a href="#" class="text-decoration-none fw-bold">IT Security Department</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-login-container {
+        background: linear-gradient(135deg, #0d2453 0%, #1a3a7a 100%);
+        min-height: 100vh;
+        padding-top: 0;
+    }
+    
+    .admin-utility-bar {
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .admin-utility-bar .btn {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+    }
+    
+    .admin-image-section {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+    }
+    
+    .admin-graphics-placeholder {
+        text-align: center;
+        max-width: 80%;
+    }
+    
+    .admin-badge {
+        margin-bottom: 3rem;
+    }
+    
+    .badge-icon.admin-icon {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        width: 140px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        border: 3px solid rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+    }
+    
+    .graphics-text h2 {
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-size: 2.5rem;
+    }
+    
+    .graphics-text p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    
+    .security-features {
+        text-align: left;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .feature-item {
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+        opacity: 0.9;
+        display: flex;
+        align-items: center;
+    }
+    
+    .admin-login-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        margin-top: 2rem;
+    }
+    
+    .card-header {
+        border-radius: 1rem 1rem 0 0 !important;
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+    }
+    
+    .admin-header-icon {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .access-warning {
+        border-left: 4px solid #f39c12;
+        background: #fef5e7;
+    }
+    
+    .form-control:focus {
+        border-color: #2c3e50;
+        box-shadow: 0 0 0 0.25rem rgba(44, 62, 80, 0.25);
+    }
+    
+    .btn-dark {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-dark:hover {
+        background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
+        transform: translateY(-2px);
+    }
+    
+    .admin-management-links .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .admin-management-links .btn:hover {
+        transform: translateY(-1px);
+    }
+    
+    @media (max-width: 991.98px) {
+        .admin-image-section {
+            display: none;
+        }
         
-        # 4. Update the grade
-        enrollment.grade = grade
-        db.session.commit()
+        .admin-login-container {
+            padding: 1rem 0;
+        }
         
-        return jsonify({'success': True, 'message': f'Grade {grade} published for {student_number} in {course_code}.'})
-    
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': f'Error publishing grade: {str(e)}'}), 500
-
-
-@results_bp.route('/view/<int:student_id>')
-@login_required
-def view_student_results(student_id):
-    """View all enrollment results for a specific student."""
-    if not current_user.is_lecturer() and not current_user.is_admin():
-        flash('Access denied.', 'error')
-        return redirect(url_for('auth.login'))
-    
-    student = Student.query.get(student_id)
-    if not student:
-        flash('Student not found.', 'error')
-        return redirect(url_for('lecturer.dashboard'))
-    
-    # Query enrollments for that student
-    student_enrollments = CourseEnrollment.query.filter_by(student_id=student_id).order_by(
-        CourseEnrollment.academic_year.desc(),
-        CourseEnrollment.semester.desc()
-    ).all()
-    
-    # Template will need to join Course data via enrollment.course
-    return render_template('lecturer/student_results_view.html', 
-                           enrollments=student_enrollments,
-                           student=student)
-
-
-@results_bp.route('/manage')
-@login_required
-def manage_results():
-    """Management view for all course enrollments (grades)."""
-    if not current_user.is_lecturer() and not current_user.is_admin():
-        flash('Access denied.', 'error')
-        return redirect(url_for('auth.login'))
-    
-    # Get all students for search/dropdown
-    all_students = Student.query.all()
-    
-    # Base query joining necessary tables
-    enrollments_query = CourseEnrollment.query.join(Student).join(Course)
-    
-    if current_user.is_lecturer():
-        # Lecturers only see enrollments for courses they teach
-        lecturer_id = current_user.lecturer_profile.id if current_user.lecturer_profile else -1
-        enrollments_query = enrollments_query.filter(Course.primary_lecturer_id == lecturer_id)
-    
-    # Order for display
-    results = enrollments_query.order_by(
-        CourseEnrollment.academic_year.desc(),
-        Student.student_number.asc()
-    ).all()
-    
-    return render_template('admin/results_management.html',
-                           students=all_students,
-                           enrollments=results) # Renamed variable to enrollments
-
-@results_bp.route('/bulk-upload', methods=['POST'])
-@login_required
-def bulk_upload():
-    """Placeholder for CSV/Excel bulk upload of grades."""
-    if not current_user.is_admin():
-        return jsonify({'success': False, 'message': 'Access denied'}), 403
-    
-    try:
-        if 'file' not in request.files:
-            return jsonify({'success': False, 'message': 'No file uploaded'})
+        .card-body {
+            padding: 2rem !important;
+        }
         
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({'success': False, 'message': 'No file selected'})
+        .admin-login-card {
+            background: white;
+            margin-top: 1rem;
+        }
         
-        # TODO: Implement robust CSV/Excel file parsing and batch insert/update into CourseEnrollment
+        .admin-utility-bar {
+            position: relative;
+        }
         
-        return jsonify({'success': True, 'message': 'Results uploaded successfully (Parsing logic placeholder).'})
-    
-    except Exception as e:
-        return jsonify({'success': False, 'message': f'Error uploading file: {str(e)}'}), 500
-
-# ------------------------------------------------------------
-# STUDENT RESULTS VIEW
-# ------------------------------------------------------------
-
-@results_bp.route('/my-results')
-@login_required
-def my_results():
-    """Student view of their own results."""
-    if not current_user.is_student() or not current_user.student_profile:
-        flash('Access denied. Students only.', 'error')
-        return redirect(url_for('auth.login'))
-    
-    student_id = current_user.student_profile.id
-    
-    student_enrollments = CourseEnrollment.query.filter_by(student_id=student_id).order_by(
-        CourseEnrollment.academic_year.desc(),
-        CourseEnrollment.semester.desc()
-    ).all()
-    
-    # Calculate grade distribution (simplified stats)
-    total_courses = len(student_enrollments)
-    grade_count = {}
-    
-    for enrollment in student_enrollments:
-        grade = enrollment.grade or 'N/A'
-        grade_count[grade] = grade_count.get(grade, 0) + 1
-    
-    return render_template('student/results.html',
-                           enrollments=student_enrollments,
-                           total_courses=total_courses,
-                           grade_count=grade_count)
-
-# ------------------------------------------------------------
-# API ENDPOINTS
-# ------------------------------------------------------------
-
-@results_bp.route('/api/student/<int:student_id>')
-@login_required
-def get_student_results_api(student_id):
-    """API endpoint to get results (enrollments) for a student."""
-    if not current_user.is_lecturer() and not current_user.is_admin():
-        return jsonify({'error': 'Access denied'}), 403
-    
-    # Query CourseEnrollment and join with Course
-    enrollments = CourseEnrollment.query.filter_by(student_id=student_id).all()
-    
-    results_data = [{
-        'id': enrollment.id,
-        'course_code': enrollment.course.code,
-        'course_name': enrollment.course.title,
-        'grade': enrollment.grade,
-        'semester': enrollment.semester,
-        'academic_year': enrollment.academic_year
-    } for enrollment in enrollments]
-    
-    return jsonify({'results': results_data})
-
-
-@results_bp.route('/api/delete/<int:enrollment_id>', methods=['DELETE'])
-@login_required
-def delete_result_api(enrollment_id):
-    """API endpoint to delete a specific enrollment record (grade)."""
-    if not current_user.is_admin():
-        return jsonify({'error': 'Access denied. Admins only.'}), 403
-    
-    try:
-        enrollment = CourseEnrollment.query.get(enrollment_id)
-        if not enrollment:
-            return jsonify({'error': 'Enrollment record not found'}), 404
+        .admin-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
         
-        db.session.delete(enrollment)
-        db.session.commit()
+        .admin-actions .btn {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .admin-management-links .btn {
+            font-size: 0.8rem;
+        }
         
-        return jsonify({'success': True, 'message': 'Enrollment record deleted successfully'})
-    
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': f'Error deleting enrollment: {str(e)}'}), 500
+        .card-body {
+            padding: 1.5rem !important;
+        }
+    }
+</style>
 
-# ------------------------------------------------------------
-# RESULTS ANALYSIS
-# ------------------------------------------------------------
+<script>
+    // Password visibility toggle
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle eye icon
+        const icon = this.querySelector('i');
+        if (type === 'text') {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
 
-@results_bp.route('/analysis')
-@login_required
-def results_analysis():
-    """General analysis of enrollment/grade data."""
-    if not current_user.is_lecturer() and not current_user.is_admin():
-        flash('Access denied.', 'error')
-        return redirect(url_for('auth.login'))
-    
-    # Get results statistics
-    total_enrollments = CourseEnrollment.query.count()
-    distinct_students = db.session.query(CourseEnrollment.student_id).distinct().count()
-    distinct_courses = db.session.query(CourseEnrollment.course_id).distinct().count()
-    
-    # Grade distribution
-    grade_distribution = db.session.query(
-        CourseEnrollment.grade, 
-        db.func.count(CourseEnrollment.id)
-    ).filter(CourseEnrollment.grade.isnot(None)).group_by(CourseEnrollment.grade).all()
-    
-    # Enrollment count per course
-    course_enrollment_counts = db.session.query(
-        Course.code,
-        Course.title,
-        db.func.count(CourseEnrollment.id).label('enrollment_count')
-    ).join(Course).group_by(Course.code, Course.title).all()
-    
-    return render_template('admin/results_analysis.html',
-                           total_enrollments=total_enrollments,
-                           distinct_students=distinct_students,
-                           distinct_courses=distinct_courses,
-                           grade_distribution=grade_distribution,
-                           course_enrollment_counts=course_enrollment_counts)
+    // Auto-focus username field
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('username').focus();
+    });
+</script>
+{% endblock %}

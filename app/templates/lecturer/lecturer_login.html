@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Lecturer Login - Cavendish University{% endblock %}
+
+{% block content %}
+<div class="container-fluid lecturer-login-container">
+    <!-- Lecturer Utility Bar (Simplified) -->
+    <div class="lecturer-utility-bar">
+        <div class="container">
+            <div class="d-flex justify-content-start align-items-center py-2">
+                <div class="text-white small">
+                    <i class="fas fa-chalkboard-teacher me-1"></i>
+                    Lecturer Portal Access
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center min-vh-100">
+        <!-- Left side - Lecturer Graphics Section -->
+        <div class="col-lg-6 d-none d-lg-block lecturer-image-section" 
+             style="background: linear-gradient(rgba(10, 83, 30, 0.9), rgba(20, 100, 40, 0.95)), url('{{ url_for('static', filename='images/cavendish2.png') }}'); 
+                     background-size: cover; 
+                     background-position: center;">
+            <div class="lecturer-graphics-placeholder">
+                <div class="lecturer-badge">
+                    <div class="badge-icon lecturer-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" fill="currentColor" class="bi bi-person-video" viewBox="0 0 16 16">
+                            <path d="M7 11.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/>
+                            <path d="M14 2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2.5v3H4l.002-.001a.147.147 0 0 0-.002.001h8a.146.146 0 0 0-.002-.001L12 15h-2.5v-3H12a2 2 0 0 0 2-2zM4 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1 1-1V1zm8 10a1 1 0 0 1 1-1V1h-1z"/>
+                            <path d="M3 13.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M7.5 5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M6 6.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0m4 2.385c0 .354-.158.647-.457 1.059-.286.398-.636.837-1.12 1.353-.298.324-.593.593-.843.832-.014.01-.027.021-.04.032l-.352.351A1 1 0 0 0 7.378 13h1.244a1 1 0 0 0 .707-.293l.353-.353c.013-.01.026-.021.04-.032.25-.239.545-.508.843-.832.484-.516.834-.955 1.12-1.353.299-.412.457-.705.457-1.059z"/>
+                        </svg>
+                    </div>
+                    <h3>Lecturer Access</h3>
+                    <p class="m-0">Course Management & Grading System</p>
+                </div>
+                <div class="graphics-text">
+                    <h2>Educator Portal</h2>
+                    <p>Access your course materials, manage student progress, submit grades, and communicate with your departments securely.</p>
+                    <div class="security-features">
+                        <div class="feature-item">
+                            <i class="fas fa-graduation-cap me-2 text-success"></i>
+                            Course enrollment management
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-file-signature me-2 text-success"></i>
+                            Digital grade submission
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-comments me-2 text-success"></i>
+                            Secure student communication
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-calendar-alt me-2 text-success"></i>
+                            Academic calendar integration
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right side - Login Form -->
+        <div class="col-lg-6 col-md-12">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-10">
+                    <div class="card lecturer-login-card shadow-lg border-0">
+                        <div class="card-header bg-success text-white text-center py-4 border-0">
+                            <div class="lecturer-header-icon mb-3">
+                                <i class="fas fa-user-tie fa-2x"></i>
+                            </div>
+                            <h2 class="mb-0">Lecturer Login</h2>
+                            <p class="mb-0 mt-2">Access required for all teaching staff.</p>
+                        </div>
+                        
+                        <div class="card-body p-5">
+                            <div class="access-warning alert alert-info d-flex align-items-center mb-4">
+                                <i class="fas fa-info-circle me-2 flex-shrink-0"></i>
+                                <div>
+                                    <strong>Access Note:</strong> Please use the email address associated with your faculty registration.
+                                </div>
+                            </div>
+
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                                                {{ message }}
+                                            </div>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+
+                            <form method="POST" action="{{ url_for('lecturer.lecturer_login') }}" class="needs-validation" novalidate>
+                                <div class="mb-4">
+                                    <label for="email" class="form-label fw-semibold">Personal Email Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-at"></i>
+                                        </span>
+                                        <input 
+                                            type="email" 
+                                            id="email" 
+                                            name="email" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="your.email@cavendish.edu" 
+                                            required
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="password" class="form-label fw-semibold">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-key"></i>
+                                        </span>
+                                        <input 
+                                            type="password" 
+                                            id="password" 
+                                            name="password" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="Enter your confidential password" 
+                                            required
+                                        >
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid mb-4">
+                                    <button type="submit" class="btn btn-success btn-lg py-3 fw-semibold">
+                                        <i class="fas fa-sign-in-alt me-2"></i>
+                                        Login to Lecturer Portal
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="text-center mt-4">
+                                <p class="text-muted small mb-0">
+                                    <a href="#" class="text-decoration-none text-success fw-bold">Forgot Password?</a>
+                                </p>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            Experiencing technical issues? Contact the 
+                            <a href="#" class="text-decoration-none fw-bold">Faculty Support Desk</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Lecturer Specific Styling (Uses a green theme) */
+    .lecturer-login-container {
+        /* Green gradient for lecturers */
+        background: linear-gradient(135deg, #10531e, #28a745); /* REMOVED 0% and 100% */
+        min-height: 100vh;
+        padding-top: 0;
+    }
+    
+    .lecturer-utility-bar {
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .lecturer-image-section {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+    }
+    
+    .lecturer-graphics-placeholder {
+        text-align: center;
+        max-width: 500px; 
+    }
+    
+    .lecturer-badge {
+        margin-bottom: 3rem;
+    }
+    
+    .badge-icon.lecturer-icon {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        width: 140px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        border: 3px solid rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+    }
+    
+    .graphics-text h2 {
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-size: 2.5rem;
+    }
+    
+    .graphics-text p {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    
+    .security-features {
+        text-align: left;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .feature-item {
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .lecturer-login-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        margin-top: 2rem;
+    }
+    
+    .card-header {
+        border-radius: 1rem 1rem 0 0 !important;
+        /* Green theme header */
+        background: linear-gradient(135deg, #218838, #28a745) !important; /* REMOVED 0% and 100% */
+    }
+    
+    .lecturer-header-icon {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .access-warning.alert-info {
+        border-left: 4px solid #17a2b8;
+        background: #e9f8fb;
+    }
+
+    /* Green button for lecturer portal */
+    .btn-success {
+        background: linear-gradient(135deg, #218838, #28a745); /* REMOVED 0% and 100% */
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        background: linear-gradient(135deg, #1e7e34, #218838); /* REMOVED 0% and 100% */
+        transform: translateY(-2px);
+    }
+
+    .text-success {
+        color: #28a745 !important; /* Bootstrap success green */
+    }
+    
+    /* General styles retained */
+    .form-control:focus {
+        border-color: #28a745; /* Green focus outline */
+        box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+    }
+    
+    @media (max-width: 991.98px) {
+        .lecturer-image-section {
+            display: none;
+        }
+        
+        .lecturer-login-container {
+            /* Changed to rem/fixed pixel equivalent if needed, but percentages are often used in media queries */
+            padding: 1rem 0; 
+        }
+        
+        .card-body {
+            /* Changed from percentage unit if needed, but rem is used here */
+            padding: 2rem !important;
+        }
+        
+        .lecturer-login-card {
+            background: white;
+            margin-top: 1rem;
+        }
+        
+        .lecturer-utility-bar {
+            position: relative;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .card-body {
+            /* Changed from percentage unit if needed, but rem is used here */
+            padding: 1.5rem !important;
+        }
+    }
+</style>
+
+<script>
+    // Password visibility toggle
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Toggle eye icon
+        const icon = this.querySelector('i');
+        if (type === 'text') {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    // Auto-focus email field
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('email').focus();
+    });
+</script>
+{% endblock %}
