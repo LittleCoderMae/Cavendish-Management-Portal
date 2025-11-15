@@ -39,6 +39,15 @@ def student_required(f):
 # ---------------- Student Authentication ----------------
 @student_bp.route('/login', methods=['GET', 'POST'])
 def student_login():
+    # If already logged in as student, redirect to dashboard
+    if 'student_id' in session:
+        return redirect(url_for('student.student_dashboard'))
+    
+    # If logged in as a different role (admin/lecturer), ask to logout first
+    if 'user_id' in session and session.get('role') in ['admin', 'lecturer']:
+        flash("Please log out from your current role before accessing student login.", "warning")
+        return redirect(url_for('index'))
+    
     if request.method == 'POST':
         student_number = request.form.get('student_number')
         password = request.form.get('password')

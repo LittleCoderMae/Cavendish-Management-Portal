@@ -497,7 +497,7 @@
             <div class="header-content">
                 <div class="logo-section">
                     <div class="logo-container">
-                        <img src="{{ url_for('static', filename='images/logo3.png') }}" alt="Cavendish University Logo" class="university-logo logo-fix">
+                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cavendish University Logo" class="university-logo logo-fix">
                     </div>
                     <div class="university-title">
                         <h1>Cavendish University Zambia</h1>
@@ -507,7 +507,24 @@
                 <nav class="nav-links">
                     <a href="{{ url_for('student.student_login') }}" class="nav-link">Student Portal</a>
                     <a href="{{ url_for('admin.admin_login') }}" class="nav-link">Admin Portal</a>
-                    <a href="#" class="nav-link">Contact</a>
+                    <div class="dropdown">
+                        <button class="nav-link btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none;">
+                            <i class="fas fa-question-circle me-1"></i>Support
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('chatbot.help_page') }}">
+                                    <i class="fas fa-question-circle me-2 text-info"></i>Help & Support
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#contact">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>Contact Us
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </nav>
             </div>
         </header>
@@ -517,7 +534,7 @@
             <div class="hero-card">
                 <div class="hero-header">
                     <div class="logo-container">
-                        <img src="{{ url_for('static', filename='images/logo3.png') }}" alt="Cavendish University Logo" class="hero-logo logo-fix">
+                        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Cavendish University Logo" class="hero-logo logo-fix">
                     </div>
                     <h1 class="hero-title">Cavendish Management Portal</h1>
                     <p class="hero-subtitle">Your Gateway to Academic Excellence</p>
@@ -557,7 +574,7 @@
                             </div>
                             <h3>Lecturer Portal</h3>
                             <p>Manage courses, submit grades, and communicate with students.</p>
-                            <a href="#" class="btn-portal btn-lecturer" data-bs-toggle="modal" data-bs-target="#lecturerLoginModal">
+                        <a href="{{ url_for('lecturer.lecturer_login') }}" class="btn-portal btn-lecturer">
                                 <span>Lecturer Login</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
@@ -638,56 +655,6 @@
             </div>
         </main>
     </div>
-
-    <!-- Lecturer Login Modal (inline on landing page) -->
-    <div class="modal fade" id="lecturerLoginModal" tabindex="-1" aria-labelledby="lecturerLoginModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-md">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="lecturerLoginModalLabel">Lecturer Login</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{{ url_for('lecturer.lecturer_login') }}">
-                        <div class="mb-3">
-                            <label for="modal_email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="modal_email" name="email" placeholder="your.email@cavendish.edu" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="modal_password" class="form-label">Password</label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="modal_password" name="password" placeholder="Enter your password" required>
-                                <button class="btn btn-outline-secondary" type="button" id="modalTogglePassword"><i class="fas fa-eye"></i></button>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <a href="{{ url_for('lecturer.lecturer_register') }}">Create Lecturer Account</a>
-                            <a href="#">Forgot Password?</a>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success">Login</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Toggle password visibility in modal
-        document.addEventListener('click', function (e) {
-            if (e.target && e.target.id === 'modalTogglePassword') {
-                const pwd = document.getElementById('modal_password');
-                const type = pwd.getAttribute('type') === 'password' ? 'text' : 'password';
-                pwd.setAttribute('type', type);
-                const icon = e.target.querySelector('i');
-                if (icon) {
-                    icon.classList.toggle('fa-eye');
-                    icon.classList.toggle('fa-eye-slash');
-                }
-            }
-        });
-    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

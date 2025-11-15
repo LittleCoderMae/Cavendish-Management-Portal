@@ -28,15 +28,21 @@ def admin_required(f):
 # -----------------
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def admin_login():
+    # If already logged in as admin, go to dashboard
     if 'user_id' in session and session.get('role') == 'admin':
         return redirect(url_for('admin.dashboard'))
+    
+    # If logged in as a different role, redirect them to logout first
+    if 'user_id' in session and session.get('role') != 'admin':
+        flash("Please log out from your current role before accessing admin login.", "warning")
+        return redirect(url_for('student.student_dashboard') if session.get('role') == 'student' else url_for('lecturer.dashboard'))
 
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
         user = User.query.filter_by(username=username, role='admin').first()
-        if user and check_password_hash(user.password_hash, password):
+        if user and user.check_password(password):
             session['user_id'] = user.id
             session['role'] = user.role
             flash("Admin login successful!", "success")

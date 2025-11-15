@@ -7,44 +7,481 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .dashboard-card {
-            transition: transform 0.2s;
-            border: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        :root {
+            --harvard-crimson: #A51C30;
+            --harvard-dark: #8B1838;
+            --harvard-light: #C5566F;
+            --harvard-accent: #D4435F;
         }
-        .dashboard-card:hover {
-            transform: translateY(-5px);
+
+        /* ANIMATIONS */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(165, 28, 48, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(165, 28, 48, 0.4);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8ecf1 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, var(--harvard-crimson) 0%, var(--harvard-dark) 50%, #6a1628 100%);
+            box-shadow: 0 4px 20px rgba(165, 28, 48, 0.3);
+            border-bottom: 3px solid var(--harvard-light);
+            animation: slideInDown 0.6s ease-out;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .navbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
         .nav-brand {
-            font-weight: bold;
-            color: #1e3c72;
+            font-weight: 800;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            color: white !important;
+            text-transform: uppercase;
+            animation: slideInDown 0.8s ease-out 0.1s both;
         }
+
+        .nav-link {
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: rgba(255,255,255,0.92) !important;
+            position: relative;
+            padding: 0.5rem 0.75rem !important;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--harvard-light);
+            transition: width 0.4s ease-out;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            transform: translateY(-3px);
+        }
+
+        .nav-link:hover::before {
+            width: 100%;
+        }
+
+        .container {
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .dashboard-card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            animation: fadeInUp 0.8s ease-out;
+            animation-fill-mode: both;
+            cursor: pointer;
+        }
+
+        .dashboard-card:nth-child(1) { animation-delay: 0.1s; }
+        .dashboard-card:nth-child(2) { animation-delay: 0.2s; }
+        .dashboard-card:nth-child(3) { animation-delay: 0.3s; }
+        .dashboard-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(165, 28, 48, 0.25);
+        }
+
+        .dashboard-card.bg-primary {
+            background: linear-gradient(135deg, var(--harvard-crimson) 0%, var(--harvard-dark) 100%) !important;
+            position: relative;
+        }
+
+        .dashboard-card.bg-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transition: all 0.5s ease;
+        }
+
+        .dashboard-card.bg-primary:hover::after {
+            right: -20%;
+        }
+
+        .dashboard-card.bg-success {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%) !important;
+        }
+
+        .dashboard-card.bg-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+        }
+
+        .dashboard-card.bg-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+        }
+
+        .dashboard-card .card-body {
+            position: relative;
+            z-index: 1;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        .stat-number {
+            font-size: 3.2rem;
+            font-weight: 900;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-weight: 700;
+            opacity: 0.95;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: fadeInUp 1s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .card:nth-of-type(1) { animation-delay: 0.5s; }
+        .card:nth-of-type(2) { animation-delay: 0.6s; }
+        .card:nth-of-type(3) { animation-delay: 0.7s; }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            border-radius: 0;
+            font-weight: 700;
+            padding: 1.4rem 1.8rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .card-header.bg-warning {
+            background: linear-gradient(90deg, #ffc107 0%, #f0ad4e 100%) !important;
+            color: #333 !important;
+        }
+
+        .card-header.bg-success {
+            background: linear-gradient(90deg, #28a745 0%, #1e7e34 100%) !important;
+            color: white !important;
+        }
+
+        .card-header.bg-danger {
+            background: linear-gradient(90deg, #dc3545 0%, #c82333 100%) !important;
+            color: white !important;
+        }
+
+        .card-header.bg-secondary {
+            background: linear-gradient(90deg, var(--harvard-crimson) 0%, var(--harvard-dark) 100%) !important;
+            color: white !important;
+        }
+
+        .card-header i {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: linear-gradient(90deg, #f5f7fa 0%, #eff1f5 100%);
+            color: var(--harvard-dark);
+            font-weight: 700;
+            border: none;
+            border-bottom: 3px solid var(--harvard-light);
+            padding: 1.2rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(165, 28, 48, 0.04);
+            transform: scale(1.01);
+            box-shadow: inset 0 4px 12px rgba(165, 28, 48, 0.08);
+        }
+
+        .table tbody tr td {
+            vertical-align: middle;
+            padding: 1rem;
+        }
+
         .table-actions {
             white-space: nowrap;
         }
+
+        .btn-outline-primary {
+            color: var(--harvard-crimson);
+            border-color: var(--harvard-crimson);
+            border-width: 2px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--harvard-crimson);
+            border-color: var(--harvard-crimson);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(165, 28, 48, 0.3);
+        }
+
+        .btn-outline-success {
+            border-width: 2px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-success:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-outline-info {
+            border-width: 2px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-info:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+        }
+
+        .btn-group-sm > .btn {
+            padding: 0.4rem 0.7rem;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-group-sm > .btn:hover {
+            transform: scale(1.08);
+        }
+
+        .badge {
+            font-weight: 700;
+            padding: 0.6rem 0.9rem;
+            border-radius: 20px;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        code {
+            background-color: #f8f9fa;
+            color: var(--harvard-dark);
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-weight: 600;
+            border: 1px solid #e9ecef;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 10px;
+            padding: 1.2rem 1.5rem;
+            font-weight: 500;
+            border-left: 5px solid;
+            animation: slideInDown 0.6s ease-out;
+        }
+
+        .alert-success {
+            border-left-color: #28a745;
+            background: linear-gradient(90deg, rgba(40, 167, 69, 0.1), transparent);
+        }
+
+        .alert-danger {
+            border-left-color: #dc3545;
+            background: linear-gradient(90deg, rgba(220, 53, 69, 0.1), transparent);
+        }
+
+        .alert-warning {
+            border-left-color: #ffc107;
+            background: linear-gradient(90deg, rgba(255, 193, 7, 0.1), transparent);
+        }
+
+        .alert-info {
+            border-left-color: #17a2b8;
+            background: linear-gradient(90deg, rgba(23, 162, 184, 0.1), transparent);
+        }
+
+        .text-muted {
+            color: #999 !important;
+        }
+
+        .badge-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulseGlow 2s infinite;
+        }
+
+        .badge-dot.success { background: #28a745; }
+        .badge-dot.danger { background: #dc3545; }
+        .badge-dot.warning { background: #ffc107; }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.5rem 0 !important;
+            }
+
+            .nav-brand {
+                font-size: 1.1rem;
+            }
+
+            .stat-number {
+                font-size: 2.2rem;
+            }
+
+            .dashboard-card {
+                margin-bottom: 1rem;
+            }
+
+            .card-header {
+                padding: 1rem 1.2rem;
+            }
+        }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
         <a class="navbar-brand nav-brand" href="{{ url_for('admin.dashboard') }}">
-            <i class="fas fa-university me-2"></i>Cavendish University Admin
+            <i class="fas fa-shield-alt me-2"></i>Admin Portal
         </a>
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link" href="{{ url_for('admin.manage_admins') }}">
-                <i class="fas fa-users-cog me-1"></i>Manage Admins
-            </a>
-            <a class="nav-link" href="{{ url_for('admin.view_students') }}">
-                <i class="fas fa-user-graduate me-1"></i>Students
-            </a>
-            <a class="nav-link" href="{{ url_for('admin.admin_logout') }}">
-                <i class="fas fa-sign-out-alt me-1"></i>Logout
-            </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('admin.manage_admins') }}">
+                    <i class="fas fa-users-cog me-1"></i>Manage Admins
+                </a>
+                <a class="nav-link" href="{{ url_for('admin.view_students') }}">
+                    <i class="fas fa-user-graduate me-1"></i>Students
+                </a>
+                <a class="nav-link" href="{{ url_for('admin.admin_logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
         </div>
     </div>
 </nav>
@@ -64,38 +501,38 @@
 
     <!-- Dashboard Stats -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md-6 col-lg-3 mb-3">
             <div class="card dashboard-card text-white bg-primary">
-                <div class="card-body text-center">
-                    <i class="fas fa-clock fa-2x mb-2"></i>
-                    <h5 class="card-title">Pending Payments</h5>
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-hourglass-half fa-3x mb-3 opacity-75"></i>
+                    <h6 class="card-title text-uppercase letter-spacing">Pending Payments</h6>
                     <div class="stat-number">{{ pending_payments|length }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-6 col-lg-3 mb-3">
             <div class="card dashboard-card text-white bg-success">
-                <div class="card-body text-center">
-                    <i class="fas fa-check-circle fa-2x mb-2"></i>
-                    <h5 class="card-title">Approved Payments</h5>
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-check-circle fa-3x mb-3 opacity-75"></i>
+                    <h6 class="card-title text-uppercase letter-spacing">Approved Payments</h6>
                     <div class="stat-number">{{ approved_payments|length }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-6 col-lg-3 mb-3">
             <div class="card dashboard-card text-white bg-danger">
-                <div class="card-body text-center">
-                    <i class="fas fa-times-circle fa-2x mb-2"></i>
-                    <h5 class="card-title">Rejected Payments</h5>
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-times-circle fa-3x mb-3 opacity-75"></i>
+                    <h6 class="card-title text-uppercase letter-spacing">Rejected Payments</h6>
                     <div class="stat-number">{{ rejected_payments|length }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-6 col-lg-3 mb-3">
             <div class="card dashboard-card text-white bg-info">
-                <div class="card-body text-center">
-                    <i class="fas fa-users fa-2x mb-2"></i>
-                    <h5 class="card-title">Total Students</h5>
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-graduation-cap fa-3x mb-3 opacity-75"></i>
+                    <h6 class="card-title text-uppercase letter-spacing">Total Students</h6>
                     <div class="stat-number">{{ students|length }}</div>
                 </div>
             </div>
@@ -107,16 +544,16 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-secondary text-white">
-                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                    <i class="fas fa-zap me-2"></i><strong>Quick Actions</strong>
                 </div>
                 <div class="card-body">
-                    <a href="{{ url_for('admin.create_admin') }}" class="btn btn-outline-primary me-2">
+                    <a href="{{ url_for('admin.create_admin') }}" class="btn btn-outline-primary me-2 mb-2">
                         <i class="fas fa-user-plus me-1"></i>Create Admin
                     </a>
-                    <a href="{{ url_for('admin.view_students') }}" class="btn btn-outline-success me-2">
+                    <a href="{{ url_for('admin.view_students') }}" class="btn btn-outline-success me-2 mb-2">
                         <i class="fas fa-list me-1"></i>View All Students
                     </a>
-                    <a href="{{ url_for('admin.view_registration_slips') }}" class="btn btn-outline-info">
+                    <a href="{{ url_for('admin.view_registration_slips') }}" class="btn btn-outline-info mb-2">
                         <i class="fas fa-file-contract me-1"></i>View Registration Slips
                     </a>
                 </div>

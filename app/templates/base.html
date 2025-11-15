@@ -30,7 +30,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url("{{ url_for('static', filename='images/cavendish2.png') }}") center/cover;
+            background: url("{{ url_for('static', filename='images/cav3.png') }}") center/cover;
             opacity: 0.1;
             z-index: 1;
         }
@@ -352,7 +352,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="d-flex align-items-center gap-3">
-                    <img src="{{ url_for('static', filename='images/logo3.png') }}" 
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" 
                          alt="Cavendish University Logo" 
                          class="footer-logo">
                     <div>
@@ -364,7 +364,9 @@
                 <div class="footer-links">
                     <a href="{{ url_for('index') }}" class="footer-link">Home</a>
                     <a href="{{ url_for('student.student_login') }}" class="footer-link">Student Portal</a>
+                    <a href="{{ url_for('lecturer.lecturer_login') }}" class="footer-link">Lecturer Portal</a
                     <a href="{{ url_for('admin.admin_login') }}" class="footer-link">Admin Portal</a>
+                 
                     <a href="#" class="footer-link">Contact</a>
                 </div>
             </div>

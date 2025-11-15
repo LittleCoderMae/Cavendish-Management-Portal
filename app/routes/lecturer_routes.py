@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from functools import wraps
 from ..extensions import db
 from ..models import User, Lecturer, UserRole
@@ -78,18 +78,29 @@ ALL_STUDENTS_COUNT = len(MOCK_STUDENTS)
 @lecturer_bp.route('/login', methods=['GET', 'POST'])
 def lecturer_login():
     """Handles lecturer login form display and submission (URL: /lecturer/login)."""
-    global current_user
-    if current_user.is_authenticated:
+    # If already logged in as lecturer via User-based auth, redirect to dashboard
+    if 'user_id' in session and session.get('role') == 'lecturer':
         return redirect(url_for('lecturer.dashboard'))
+    
+    # If logged in as a different role (student/admin), ask to logout first
+    if 'user_id' in session and session.get('role') in ['admin', 'student']:
+        flash("Please log out from your current role before accessing lecturer login.", "warning")
+        return redirect(url_for('index'))
+    
+    if 'student_id' in session:
+        flash("Please log out from your student account before accessing lecturer login.", "warning")
+        return redirect(url_for('index'))
 
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         
-        # Mock Login Check (Email: elara.vance@university.edu, Password: Password123)
-        if email == 'elara.vance@university.edu' and password == 'Password123': 
-            current_user = MockUser(is_authenticated=True)
-            flash('Login successful! Welcome back, Dr. Vance.', 'success')
+        # Check against User table with role='lecturer'
+        user = User.query.filter_by(email=email, role='lecturer').first()
+        if user and user.check_password(password):
+            session['user_id'] = user.id
+            session['role'] = 'lecturer'
+            flash('Login successful! Welcome back.', 'success')
             return redirect(url_for('lecturer.dashboard'))
         else:
             flash('Invalid email or password.', 'error')
