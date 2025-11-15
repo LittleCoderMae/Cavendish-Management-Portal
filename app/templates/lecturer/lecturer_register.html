@@ -1,0 +1,501 @@
+{% extends "base.html" %}
+
+{% block title %}Create Lecturer Account - Cavendish University{% endblock %}
+
+{% block content %}
+<div class="container-fluid lecturer-register-container">
+    <!-- Lecturer Utility Bar (Simplified) -->
+    <div class="lecturer-utility-bar">
+        <div class="container">
+            <div class="d-flex justify-content-start align-items-center py-2">
+                <div class="text-white small">
+                    <i class="fas fa-chalkboard-teacher me-1"></i>
+                    Lecturer Account Registration
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center min-vh-100">
+        <!-- Left side - Registration Graphics Section -->
+        <div class="col-lg-6 d-none d-lg-block lecturer-image-section" 
+             style="background: linear-gradient(rgba(10, 83, 30, 0.9), rgba(20, 100, 40, 0.95)), url('{{ url_for('static', filename='images/cavendish2.png') }}'); 
+                     background-size: cover; 
+                     background-position: center;">
+            <div class="lecturer-graphics-placeholder">
+                <div class="lecturer-badge">
+                    <div class="badge-icon lecturer-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
+                            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.001-1.679a.5.5 0 1 1 .858.514ZM11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                            <path d="M16 12.5a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z"/>
+                        </svg>
+                    </div>
+                    <h3>Join Our Faculty</h3>
+                    <p class="m-0">Create Your Teaching Account</p>
+                </div>
+                <div class="graphics-text">
+                    <h2>Educator Registration</h2>
+                    <p>Register as a lecturer to access our comprehensive teaching platform, manage your courses, track student progress, and submit grades securely.</p>
+                    <div class="security-features">
+                        <div class="feature-item">
+                            <i class="fas fa-lock me-2 text-success"></i>
+                            Secure account creation
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-envelope me-2 text-success"></i>
+                            Email verification
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt me-2 text-success"></i>
+                            Password protection
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle me-2 text-success"></i>
+                            Instant account activation
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right side - Registration Form -->
+        <div class="col-lg-6 col-md-12">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-10">
+                    <div class="card lecturer-register-card shadow-lg border-0">
+                        <div class="card-header bg-success text-white text-center py-4 border-0">
+                            <div class="lecturer-header-icon mb-3">
+                                <i class="fas fa-user-plus fa-2x"></i>
+                            </div>
+                            <h2 class="mb-0">Create Lecturer Account</h2>
+                            <p class="mb-0 mt-2">Register to access the educator portal</p>
+                        </div>
+                        
+                        <div class="card-body p-5">
+                            <div class="info-alert alert alert-info d-flex align-items-center mb-4">
+                                <i class="fas fa-lightbulb me-2 flex-shrink-0"></i>
+                                <div>
+                                    <strong>New Here?</strong> Fill in your details to create a new lecturer account.
+                                </div>
+                            </div>
+
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                                                {{ message }}
+                                            </div>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+
+                            <form method="POST" action="{{ url_for('lecturer.lecturer_register') }}" class="needs-validation" novalidate>
+                                <!-- Full Name -->
+                                <div class="mb-4">
+                                    <label for="name" class="form-label fw-semibold">Full Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        <input 
+                                            type="text" 
+                                            id="name" 
+                                            name="name" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="Dr. John Doe" 
+                                            required
+                                        >
+                                    </div>
+                                </div>
+
+                                <!-- Email Address -->
+                                <div class="mb-4">
+                                    <label for="email" class="form-label fw-semibold">Email Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-at"></i>
+                                        </span>
+                                        <input 
+                                            type="email" 
+                                            id="email" 
+                                            name="email" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="john.doe@cavendish.edu" 
+                                            required
+                                        >
+                                    </div>
+                                    <small class="text-muted">Use your official faculty email address</small>
+                                </div>
+
+                                <!-- Department -->
+                                <div class="mb-4">
+                                    <label for="department" class="form-label fw-semibold">Department</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-building"></i>
+                                        </span>
+                                        <input 
+                                            type="text" 
+                                            id="department" 
+                                            name="department" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="e.g., Computer Science" 
+                                            required
+                                        >
+                                    </div>
+                                </div>
+
+                                <!-- Staff/Employee Number -->
+                                <div class="mb-4">
+                                    <label for="staff_number" class="form-label fw-semibold">Staff Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-id-card"></i>
+                                        </span>
+                                        <input 
+                                            type="text" 
+                                            id="staff_number" 
+                                            name="staff_number" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="LCT-1001" 
+                                            required
+                                        >
+                                    </div>
+                                    <small class="text-muted">Your official faculty staff number</small>
+                                </div>
+
+                                <!-- Phone Number -->
+                                <div class="mb-4">
+                                    <label for="phone" class="form-label fw-semibold">Phone Number</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-phone"></i>
+                                        </span>
+                                        <input 
+                                            type="tel" 
+                                            id="phone" 
+                                            name="phone" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="+1 (555) 000-0000"
+                                        >
+                                    </div>
+                                </div>
+
+                                <!-- Password -->
+                                <div class="mb-4">
+                                    <label for="password" class="form-label fw-semibold">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-key"></i>
+                                        </span>
+                                        <input 
+                                            type="password" 
+                                            id="password" 
+                                            name="password" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="Create a secure password" 
+                                            required
+                                        >
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">At least 8 characters with uppercase, lowercase, and numbers</small>
+                                </div>
+
+                                <!-- Confirm Password -->
+                                <div class="mb-4">
+                                    <label for="confirm_password" class="form-label fw-semibold">Confirm Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="fas fa-key"></i>
+                                        </span>
+                                        <input 
+                                            type="password" 
+                                            id="confirm_password" 
+                                            name="confirm_password" 
+                                            class="form-control form-control-lg" 
+                                            placeholder="Re-enter your password" 
+                                            required
+                                        >
+                                        <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Terms & Conditions -->
+                                <div class="mb-4 form-check">
+                                    <input 
+                                        type="checkbox" 
+                                        class="form-check-input" 
+                                        id="terms" 
+                                        name="terms" 
+                                        required
+                                    >
+                                    <label class="form-check-label" for="terms">
+                                        I agree to the <a href="#" class="text-success fw-bold">Terms and Conditions</a> and <a href="#" class="text-success fw-bold">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                
+                                <div class="d-grid mb-4">
+                                    <button type="submit" class="btn btn-success btn-lg py-3 fw-semibold">
+                                        <i class="fas fa-user-plus me-2"></i>
+                                        Create My Account
+                                    </button>
+                                </div>
+                            </form>
+
+                            <hr class="my-4">
+
+                            <div class="text-center">
+                                <p class="text-muted small mb-3">
+                                    Already have an account?
+                                </p>
+                                <a href="{{ url_for('lecturer.lecturer_login') }}" class="btn btn-outline-success btn-sm px-4">
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Sign In to Your Account
+                                </a>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            Need assistance? Contact the 
+                            <a href="#" class="text-decoration-none fw-bold">Faculty Support Team</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Lecturer Registration Container Styling */
+    .lecturer-register-container {
+        background: linear-gradient(135deg, #10531e, #28a745);
+        min-height: 100vh;
+        padding-top: 0;
+    }
+    
+    .lecturer-utility-bar {
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .lecturer-image-section {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+    }
+    
+    .lecturer-graphics-placeholder {
+        text-align: center;
+        max-width: 500px; 
+    }
+    
+    .lecturer-badge {
+        margin-bottom: 3rem;
+    }
+    
+    .badge-icon.lecturer-icon {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        width: 140px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        border: 3px solid rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+    }
+    
+    .graphics-text h2 {
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        font-size: 2.5rem;
+    }
+    
+    .graphics-text p {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    
+    .security-features {
+        text-align: left;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .feature-item {
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .lecturer-register-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        margin-top: 2rem;
+    }
+    
+    .card-header {
+        border-radius: 1rem 1rem 0 0 !important;
+        background: linear-gradient(135deg, #218838, #28a745) !important;
+    }
+    
+    .lecturer-header-icon {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .info-alert.alert-info {
+        border-left: 4px solid #17a2b8;
+        background: #e9f8fb;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #218838, #28a745);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        background: linear-gradient(135deg, #1e7e34, #218838);
+        transform: translateY(-2px);
+    }
+
+    .text-success {
+        color: #28a745 !important;
+    }
+    
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+    }
+    
+    .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+    
+    .form-check-input:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+    }
+    
+    @media (max-width: 991.98px) {
+        .lecturer-image-section {
+            display: none;
+        }
+        
+        .lecturer-register-container {
+            padding: 1rem 0; 
+        }
+        
+        .card-body {
+            padding: 2rem !important;
+        }
+        
+        .lecturer-register-card {
+            background: white;
+            margin-top: 1rem;
+        }
+        
+        .lecturer-utility-bar {
+            position: relative;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .card-body {
+            padding: 1.5rem !important;
+        }
+    }
+</style>
+
+<script>
+    // Password visibility toggle
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        const icon = this.querySelector('i');
+        if (type === 'text') {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    // Confirm password visibility toggle
+    document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPasswordInput.setAttribute('type', type);
+        
+        const icon = this.querySelector('i');
+        if (type === 'text') {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    // Auto-focus name field
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('name').focus();
+    });
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('Passwords do not match. Please try again.');
+            return false;
+        }
+
+        // Basic password strength check
+        if (password.length < 8) {
+            e.preventDefault();
+            alert('Password must be at least 8 characters long.');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

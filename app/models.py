@@ -236,6 +236,11 @@ class Registration(db.Model):
     registration_date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     is_registered = db.Column(db.Boolean, default=False)
     student_id = db.Column(db.Integer, db.ForeignKey("student.id"), nullable=False)
+    # Additional fields to capture semester registration details
+    program = db.Column(db.String(100), nullable=True)
+    mode_of_study = db.Column(db.String(50), nullable=True)
+    modules = db.Column(db.Text, nullable=True)
+    is_returning = db.Column(db.Boolean, default=False)
 
     # Relationships
     student = db.relationship("Student", back_populates="registrations")

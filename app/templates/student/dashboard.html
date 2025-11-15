@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard - Cavendish University</title>
+    <title>Student Dashboard - Cavendish University Zambia</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary: #1e3c72;
-            --secondary: #2a5298;
-            --accent: #4dabf7;
+            /* Harvard-like professional maroon palette */
+            --primary: #A41034;    /* Harvard crimson / main */
+            --secondary: #7F1D2E;  /* darker maroon */
+            --accent: #C84B57;     /* lighter accent */
             --light: #f8f9fa;
-            --dark: #343a40;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
+            --dark: #2b2b2b;
+            --success: #2e7d32;
+            --warning: #ffb300;
+            --danger: #b00020;
         }
         
         body {
@@ -100,7 +101,7 @@
         .action-icon {
             width: 70px;
             height: 70px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -173,7 +174,7 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
             border: none;
             padding: 10px 20px;
             border-radius: 8px;
@@ -279,13 +280,17 @@
     <div class="dashboard-container">
         <!-- Header Section -->
         <div class="dashboard-header">
-            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <!-- Modified welcome message to show student name -->
                     <h1 class="welcome-text">Welcome, {{ student.name }}!</h1>
                     <p class="welcome-subtext">Here's an overview of your academic information and payments</p>
                 </div>
                 <div class="d-flex align-items-center gap-3">
+                    <!-- Hamburger / Offcanvas toggle -->
+                    <button class="btn btn-outline-light me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#dashboardMenu" aria-controls="dashboardMenu">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <div class="d-none d-md-block">
                         <div class="bg-white text-primary p-3 rounded-pill">
                             <i class="fas fa-user-graduate me-2"></i>
@@ -303,12 +308,12 @@
         <!-- Quick Actions -->
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
-                <a href="{{ url_for('student.download_timetable') }}" class="dashboard-card quick-action-card">
+                <a href="https://time-tables.cavendishza.org/aess-bit-som-sol-july-2025/" target="_blank" rel="noopener" class="dashboard-card quick-action-card">
                     <div class="action-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
-                    <div class="action-title">Download Timetable</div>
-                    <div class="action-description">Get your class schedule as PDF</div>
+                    <div class="action-title">View Timetable</div>
+                    <div class="action-description">View the official timetable </div>
                 </a>
             </div>
             <div class="col-md-4 mb-3">
@@ -325,8 +330,30 @@
                     <div class="action-icon">
                         <i class="fas fa-question-circle"></i>
                     </div>
-                    <div class="action-title">Help & Support</div>
+                    <div class="action-title">Cuz Assistant</div>
                     <div class="action-description">Get assistance with any issues</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Docket & Results Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <a href="{{ url_for('student.docket') }}" class="dashboard-card quick-action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="action-title">Docket</div>
+                    <div class="action-description">View or download your assessment dockets (gated by payment thresholds)</div>
+                </a>
+            </div>
+            <div class="col-md-6 mb-3">
+                <a href="{{ url_for('student.student_results') }}" class="dashboard-card quick-action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="action-title">Results</div>
+                    <div class="action-description">View your results when available (access controlled by payments)</div>
                 </a>
             </div>
         </div>
@@ -546,6 +573,45 @@
                         <p class="text-muted">You haven't submitted any payment slips yet.</p>
                     </div>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Offcanvas Hamburger Menu -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="dashboardMenu" aria-labelledby="dashboardMenuLabel">
+        <div class="offcanvas-header" style="background: linear-gradient(90deg,var(--primary),var(--secondary)); color: white;">
+            <h5 class="offcanvas-title" id="dashboardMenuLabel">Student Menu</h5>
+            <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="list-group">
+                <a href="https://time-tables.cavendishza.org/aess-bit-som-sol-july-2025/" target="_blank" rel="noopener" class="list-group-item list-group-item-action">
+                    <i class="fas fa-calendar-alt me-2 text-primary"></i>Timetable
+                </a>
+                <a href="{{ url_for('student.download_registration_slip') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-file-download me-2 text-success"></i>View / Download Registration Slip
+                </a>
+                <a href="{{ url_for('student.semester_register') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-pen-to-square me-2 text-primary"></i>Register Semester
+                </a>
+                <a href="{{ url_for('student.docket') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-book-open me-2 text-secondary"></i>Docket
+                </a>
+                <a href="{{ url_for('student.student_results') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-bar me-2 text-info"></i>Results
+                </a>
+                <a href="{{ url_for('chatbot.help_page') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-question-circle me-2 text-warning"></i>Cuz Assistant
+                </a>
+                <a href="#payment-section" class="list-group-item list-group-item-action">
+                    <i class="fas fa-receipt me-2 text-secondary"></i>Payment History
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <i class="fas fa-bell me-2 text-warning"></i>Notifications
+                </a>
+                <a href="{{ url_for('student.student_logout') }}" class="list-group-item list-group-item-action text-danger">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
             </div>
         </div>
     </div>

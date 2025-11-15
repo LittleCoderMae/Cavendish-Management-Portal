@@ -12,6 +12,9 @@
     </div>
 
     <!-- Results Summary -->
+    {% if not can_view %}
+    <div class="alert alert-warning">Your results are locked. Please ensure you have paid at least 50% of your tuition to view results.</div>
+    {% endif %}
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">

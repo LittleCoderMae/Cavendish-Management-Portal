@@ -1,5 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from functools import wraps
+from ..extensions import db
+from ..models import User, Lecturer, UserRole
+import re
 
 # --- Mock Authentication Setup (Simulates Flask-Login) ---
 # In a real Flask app, you would use Flask-Login or similar for proper authentication.
@@ -21,6 +24,24 @@ class MockUser:
 # Global Mock User State
 current_user = MockUser(is_authenticated=False)
 
+# --- Validation Helper Functions ---
+def validate_password(password):
+    """Validate password strength."""
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long."
+    if not re.search(r'[A-Z]', password):
+        return False, "Password must contain at least one uppercase letter."
+    if not re.search(r'[a-z]', password):
+        return False, "Password must contain at least one lowercase letter."
+    if not re.search(r'[0-9]', password):
+        return False, "Password must contain at least one digit."
+    return True, "Password is strong."
+
+def validate_email(email):
+    """Validate email format."""
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+
 def login_required(f):
     """A decorator to restrict access to authenticated users."""
     @wraps(f)
@@ -34,7 +55,9 @@ def login_required(f):
 
 # --- Blueprint Definition ---
 # This is the object that app/__init__.py needs to import!
-lecturer_bp = Blueprint('lecturer', __name__, url_prefix='/lecturer', template_folder='templates/lecturer')
+import os
+template_dir = os.path.join(os.path.dirname(__file__), '..', 'templates', 'lecturer')
+lecturer_bp = Blueprint('lecturer', __name__, url_prefix='/lecturer', template_folder=template_dir)
 
 # --- Mock Data for Templates ---
 MOCK_COURSES = [
@@ -60,18 +83,99 @@ def lecturer_login():
         return redirect(url_for('lecturer.dashboard'))
 
     if request.method == 'POST':
-        staff_id = request.form.get('staff_id')
+        email = request.form.get('email')
         password = request.form.get('password')
         
-        # Mock Login Check (Staff ID: LCT-1001, Password: password)
-        if staff_id == 'LCT-1001' and password == 'password': 
+        # Mock Login Check (Email: elara.vance@university.edu, Password: Password123)
+        if email == 'elara.vance@university.edu' and password == 'Password123': 
             current_user = MockUser(is_authenticated=True)
             flash('Login successful! Welcome back, Dr. Vance.', 'success')
             return redirect(url_for('lecturer.dashboard'))
         else:
-            flash('Invalid Staff ID or password.', 'error')
+            flash('Invalid email or password.', 'error')
 
-    return render_template('login.html')
+    return render_template('lecturer_login.html')
+
+@lecturer_bp.route('/register', methods=['GET', 'POST'])
+def lecturer_register():
+    """Handles lecturer account registration (URL: /lecturer/register)."""
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        department = request.form.get('department')
+        staff_number = request.form.get('staff_number')
+        phone = request.form.get('phone')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        terms = request.form.get('terms')
+
+        # Validation
+        if not all([name, email, department, staff_number, password, confirm_password]):
+            flash('All fields marked with * are required.', 'error')
+            return render_template('lecturer_register.html')
+
+        if not validate_email(email):
+            flash('Please enter a valid email address.', 'error')
+            return render_template('lecturer_register.html')
+
+        if password != confirm_password:
+            flash('Passwords do not match. Please try again.', 'error')
+            return render_template('lecturer_register.html')
+
+        is_valid, message = validate_password(password)
+        if not is_valid:
+            flash(message, 'error')
+            return render_template('lecturer_register.html')
+
+        if not terms:
+            flash('You must agree to the Terms and Conditions to continue.', 'error')
+            return render_template('lecturer_register.html')
+
+        # Check if email already exists
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('This email address is already registered. Please log in or use a different email.', 'error')
+            return render_template('lecturer_register.html')
+
+        # Check if staff number already exists
+        existing_lecturer = Lecturer.query.filter_by(staff_number=staff_number).first()
+        if existing_lecturer:
+            flash('This staff number is already registered. Please contact support.', 'error')
+            return render_template('lecturer_register.html')
+
+        try:
+            # Create new lecturer profile
+            lecturer = Lecturer(
+                staff_number=staff_number,
+                name=name,
+                email=email,
+                department=department,
+                phone=phone
+            )
+            db.session.add(lecturer)
+            db.session.flush()  # Get the lecturer ID
+
+            # Create new user account
+            user = User(
+                username=email.split('@')[0],  # Use part of email as username
+                email=email,
+                role=UserRole.LECTURER,
+                lecturer_id=lecturer.id
+            )
+            user.set_password(password)
+            db.session.add(user)
+            
+            db.session.commit()
+
+            flash('Account created successfully! You can now log in with your email and password.', 'success')
+            return redirect(url_for('lecturer.lecturer_login'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f'An error occurred during registration. Please try again. {str(e)}', 'error')
+            return render_template('lecturer_register.html')
+
+    return render_template('lecturer_register.html')
 
 @lecturer_bp.route('/dashboard')
 @login_required
